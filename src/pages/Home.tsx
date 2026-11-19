@@ -1,0 +1,52 @@
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ArrowDown, ArrowUpRight, ArrowLeft, ArrowRight, ShieldCheck, Compass, Leaf, HeartHandshake, Quote, Play, X } from 'lucide-react'
+import { properties,upcomingProjects } from '../data/properties'
+import PropertyCard from '../components/PropertyCard'
+import { SectionTitle } from '../components/Site'
+const heroSlides=[
+ {image:'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=2200&q=85',label:'LAND THAT OPENS POSSIBILITIES'},
+ {image:'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2200&q=85',label:'HOMES MADE FOR LIVING'},
+ {image:'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2200&q=85',label:'ROOM TO GROW TOGETHER'},
+ {image:'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=2200&q=85',label:'SPACES TO CALL YOUR OWN'}
+]
+const categories=[
+ {title:'Premium plots',description:'A foundation for the life you imagine.',type:'Plot',images:['photo-1500382017468-9049fed747ef','photo-1449158743715-0a90ebb6d2d8','photo-1510798831971-661eb04b3739']},
+ {title:'Luxury villas',description:'Room to live beautifully, every day.',type:'Villa',images:['photo-1600607687939-ce8a6c25118c','photo-1600585154340-be6161a56a0c','photo-1600607687920-4e2a09cf159d']},
+ {title:'Modern homes',description:'Comfort, clarity and considered design.',type:'Home',images:['photo-1600566753086-00f18fb6b3ea','photo-1600607687644-c7171b42498f','photo-1600566753190-17f0baa2a6c3']}
+]
+const insights=[
+ {eyebrow:'LAND & LAYOUT',title:'A thoughtful starting point for exploring plotted land',image:'photo-1449158743715-0a90ebb6d2d8',to:'/properties?category=Plot'},
+ {eyebrow:'DESIGN & LIVING',title:'What makes a home feel considered?',image:'photo-1600607687920-4e2a09cf159d',to:'/properties?category=Villa'},
+ {eyebrow:'FUTURE PLACES',title:'Explore a new perspective on shared spaces',image:'photo-1600585154340-be6161a56a0c',to:'/upcoming'}
+]
+
+function CategoryCard({category}:{category:typeof categories[number]}){
+ const [imageIndex,setImageIndex]=useState(0)
+ useEffect(()=>{if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;const timer=window.setInterval(()=>setImageIndex(index=>(index+1)%category.images.length),5000);return()=>window.clearInterval(timer)},[category.images.length])
+ return <Link to={`/properties?category=${category.type}`} className="category-card" key={category.type}>
+  <img key={imageIndex} src={`https://images.unsplash.com/${category.images[imageIndex]}?auto=format&fit=crop&w=1000&q=85`} alt={`${category.title} concept`} loading="lazy"/>
+  <div><span>EXPLORE {category.type.toUpperCase()}</span><h3>{category.title}</h3><p>{category.description}</p><ArrowUpRight/></div>
+ </Link>
+}
+export default function Home(){
+ const [heroIndex,setHeroIndex]=useState(0)
+ const [showDemoVideo,setShowDemoVideo]=useState(false)
+ useEffect(()=>{if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;const timer=window.setInterval(()=>setHeroIndex(index=>(index+1)%heroSlides.length),5000);return()=>window.clearInterval(timer)},[])
+ const featured=[...properties.slice(0,3),...properties.slice(6,9)]
+ return <>
+  <section className="hero"><img key={heroIndex} className="hero-bg hero-bg-slide" src={heroSlides[heroIndex].image} alt={heroSlides[heroIndex].label}/><div className="hero-shade"/><div className="hero-content"><span className="eyebrow eyebrow-light">A NEW PERSPECTIVE ON PROPERTY</span><h1>Find your place.<br/><em>Build your future.</em></h1><p>Thoughtfully selected land, considered homes and spaces where your next chapter begins.</p><div className="hero-buttons"><Link className="button button-gold" to="/properties">Explore properties <ArrowUpRight size={17}/></Link><Link className="button button-outline-light" to="/contact">Talk to our team</Link><button className="button button-outline-light" onClick={()=>setShowDemoVideo(true)}><Play size={15}/> Watch the 30-second demo</button></div></div><div className="hero-bottom"><span>{String(heroIndex+1).padStart(2,'0')} / {heroSlides[heroIndex].label}</span><a href="#discover">SCROLL TO DISCOVER <ArrowDown size={14}/></a><span>COIMBATORE · INDIA</span></div><div className="hero-slide-controls"><button type="button" aria-label="Previous hero image" onClick={()=>setHeroIndex(index=>(index+heroSlides.length-1)%heroSlides.length)}><ArrowLeft size={17}/></button>{heroSlides.map((slide,index)=><button type="button" key={slide.label} className={index===heroIndex?'active':''} aria-label={`Show image ${index+1}: ${slide.label}`} aria-pressed={index===heroIndex} onClick={()=>setHeroIndex(index)} />)}<button type="button" aria-label="Next hero image" onClick={()=>setHeroIndex(index=>(index+1)%heroSlides.length)}><ArrowRight size={17}/></button></div></section>
+  <section className="search-band" id="discover"><div><span className="eyebrow">FIND WHAT FEELS RIGHT</span><h2>Begin with a place.</h2></div><form className="quick-search" onSubmit={e=>{e.preventDefault();const f=new FormData(e.currentTarget as HTMLFormElement);window.location.href=`/properties?category=${encodeURIComponent(String(f.get('category')))}&location=${encodeURIComponent(String(f.get('location')))}&budget=${encodeURIComponent(String(f.get('budget')))}`}}><label>Location<select name="location"><option value="">Any location</option><option>Coimbatore</option><option>Saravanampatti</option><option>Peelamedu</option><option>Vadavalli</option></select></label><label>Property type<select name="category"><option value="">All types</option><option>Plot</option><option>Villa</option><option>Home</option></select></label><label>Budget<select name="budget"><option value="">Any budget</option><option value="10000000">Under ₹1 Cr</option><option value="15000000">Under ₹1.5 Cr</option><option value="20000000">Under ₹2 Cr</option></select></label><button className="button button-dark">Search <ArrowUpRight size={16}/></button></form></section>
+  <section className="stats-strip"><div><strong>{properties.length}</strong><span>Curated sample listings</span></div><div><strong>05 / 05 / 04</strong><span>Plots · villas · homes</span></div><div><strong>03</strong><span>Future concepts</span></div><p>Every great story<br/>starts somewhere.</p></section>
+  <section className="section container"><SectionTitle eyebrow="SELECTED FOR YOU" title="Spaces worth discovering" copy="Explore a considered collection of land, villas and modern homes. All listings are fictional examples created for this website demo." link={{label:'View all properties',to:'/properties'}}/><div className="property-grid">{featured.map(p=><PropertyCard key={p.id} property={p}/>)}</div></section>
+  <section className="category-section"><div className="container"><SectionTitle eyebrow="FIND YOUR FIT" title="A place for every possibility" copy="From a blank canvas to a home ready for its next chapter."/><div className="category-grid">
+   {categories.map(category=><CategoryCard category={category} key={category.type}/>)}
+  </div></div></section>
+  <section className="section container"><SectionTitle eyebrow="THE NOVARA DIFFERENCE" title="More than a property search" copy="A considered approach to helping people explore the possibilities of place."/><div className="benefit-grid">{[[Compass,'A clearer perspective','Straightforward information and a thoughtful way to compare possibilities.'],[ShieldCheck,'Transparency first','Sample listings are clearly labelled, with no invented verification claims.'],[Leaf,'Designed for tomorrow','A future-facing outlook on the spaces and communities we imagine.'],[HeartHandshake,'People at the centre','A personal, helpful experience from first question to next step.']].map(([Icon,t,d]:any)=><div className="benefit" key={t}><Icon size={25}/><h3>{t}</h3><p>{d}</p></div>)}</div></section>
+  <section className="upcoming-preview"><div className="container"><SectionTitle eyebrow="ON THE HORIZON" title="Tomorrow takes shape" copy="Discover proposed concepts currently in the NOVARA pipeline." link={{label:'Explore upcoming projects',to:'/upcoming'}}/><div className="upcoming-grid">{upcomingProjects.map(p=><Link to={`/projects/${p.id}`} className="upcoming-card" key={p.id}><img src={p.image} alt={p.name}/><div><span className="status-pill">{p.status}</span><h3>{p.name}</h3><p>{p.type} · {p.location}</p><b>Discover concept <ArrowUpRight size={15}/></b></div></Link>)}</div></div></section>
+  <section className="insights-section"><div className="container"><SectionTitle eyebrow="IDEAS & INSPIRATION" title="A little perspective goes a long way" copy="Explore introductory guides and design inspiration. Demo editorial content; all locations and property details are illustrative."/><div className="insights-grid">{insights.map(article=><Link className="insight-card" to={article.to} key={article.title}><img src={`https://images.unsplash.com/${article.image}?auto=format&fit=crop&w=900&q=85`} alt="" loading="lazy"/><div><span>{article.eyebrow} · DEMO GUIDE</span><h3>{article.title}</h3><b>Explore the collection <ArrowUpRight size={15}/></b></div></Link>)}</div></div></section>
+  <section className="testimonial-section"><div className="testimonial-inner"><Quote size={34}/><span className="eyebrow eyebrow-light">A NOTE ON THE EXPERIENCE</span><h2>“The best decisions begin with the right questions.”</h2><p>Our promise is to make the property discovery journey feel considered, clear and human.</p><small>— NOVARA ESTATES · BRAND PHILOSOPHY</small><div className="demo-note">Illustrative brand statement, not a customer testimonial.</div></div></section>
+  <section className="cta-section container"><div><span className="eyebrow">YOUR NEXT CHAPTER STARTS HERE</span><h2>Let's find the place<br/>that moves you.</h2></div><Link to="/contact" className="button button-dark">Start a conversation <ArrowUpRight size={17}/></Link></section>
+  {showDemoVideo&&<div className="modal-backdrop" onClick={()=>setShowDemoVideo(false)}><button className="modal-close" aria-label="Close NOVARA demo video" onClick={()=>setShowDemoVideo(false)}><X/></button><div className="video-modal" onClick={event=>event.stopPropagation()}><video controls autoPlay muted playsInline src="/media/novara-property-showcase-30s.mp4"/><p>Original 30-second NOVARA Estates demo video · Illustrative concepts, not actual project footage.</p></div></div>}
+ </>
+}
